@@ -1,19 +1,22 @@
-t1 :: Char -> IO Char
-t1 a = return a
 
-t2 :: Char -> IO Char
-t2 a = do
-    let x = a 
-        in return x 
 
-t3 :: Char -> IO Char
-t3 a = do {
-    let {x = a} 
-    in return x;
-};
+f :: [a] -> [[[a]]]
+f xs = [[[x]] | x <- xs]
 
-t4 :: Int -> String -> IO String
-t4 0 xs = return []
-t4 n xs | n < 0 = error "Given n is less than 0"
-        | length xs < n = error "Given n is greater than length xs"
-        | otherwise = return (xs !! n) : t4 (n-1) xs
+
+
+combination :: Int -> [a] -> [([a],[a])]
+combination 0 xs     = [([],xs)]
+combination n []     = []
+combination n (x:xs) = ds ++ ts 
+  where
+    ts = [ (x:ys,zs) | (ys,zs) <- combination (n-1) xs ]
+    ds = [ (ys,x:zs) | (ys,zs) <- combination  n    xs ]
+
+comb :: Int -> [a] -> [([a],[a])]
+comb 0 xs     = [([],xs)]
+comb n []     = []
+comb n (x:xs) = ts ++ ds
+  where
+    ts = [ (x:ys,zs) | (ys,zs) <- comb (n-1) xs ]
+    ds = [ (ys,x:zs) | (ys,zs) <- comb  n    xs ]
