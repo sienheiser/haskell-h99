@@ -25,10 +25,14 @@ coprime a b
     | myGCD a b == 1 = True
     | otherwise = False
 
+conv :: Bool -> Int
+conv True = 1
+conv False = 0
 totient' :: Int -> Int -> Int
-totient' n 1 = coprime n 1
-totient' n m 
+totient' n 1 = conv $ coprime n 1
+totient' n m | m > n = error"second arguement cannot be greater than first" 
+             | otherwise = conv (coprime n m) + totient' n (m-1)
     
 
 totient :: Int -> Int
-totient n = totient' n
+totient n = totient' n n
