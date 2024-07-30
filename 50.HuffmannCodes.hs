@@ -22,3 +22,18 @@ genTreeV2 ((x,n):xs) (Node m t1 t2) = genTreeV2 xs (Node (n+m) (Leaf x) (Node m 
 
 encode :: Tree a -> String
 encode (Node n t1 t2) | 
+
+-- Another trial
+data Tre a = Empty | Leaf Int a | Node Int (Tree a) (Tree a) deriving (Show)
+
+instance Ord Tre where
+    Leaf n x > Leaf m y = n > m
+    Leaf n x > Tree m t1 t2 = n > m
+instance Eq Tre where
+    Leaf n x == Leaf m y = n == y 
+    Leaf n x == Tree m t1 t2 = n == m
+
+
+putTree :: Tre a -> [Tre a] -> [Tre a]
+putTree _ [] = []
+put (Node n t1 t2) (t:ts)
