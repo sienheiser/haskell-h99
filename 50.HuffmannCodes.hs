@@ -1,39 +1,54 @@
-put :: Ord a => a -> [a] -> [a]
-put _ [] = []
-put n (x:xs) | n < x = x : put n xs
-             | otherwise = x : n : xs
+data Tre a = Empty | Leaf Int a | Node Int (Tre a) (Tre a) deriving (Show)
 
-collapse :: [Int] -> [Int]
-collapse [x,y] = [x+y]
-collapse [x] = [x]
-collapse (x:y:xs) = collapse (put (x+y) xs)
+instance Eq (Tre a) where
+    (Leaf n _) == (Leaf m _) = n == m 
+    (Leaf n _) == (Node m _ _) = n == m
+    (Node n _ _) == (Leaf m _) = n == m
+    (Node n _ _) == (Node m _ _) = n == m 
+    Empty == Empty = True
+    _ == _ = False
 
-data Tree a = Empty | Leaf a | Node Int (Tree a) (Tree a) deriving (Show)
+instance Ord (Tre a) where
+    (Leaf n _) `compare` (Leaf m _) = n `compare` m
+    (Leaf n _) `compare` (Node m _ _)  = n `compare` m
+    (Node n _ _) `compare` (Leaf m _) = n `compare` m
+    (Node n _ _) `compare` (Node m _ _) = n `compare` m
 
-genTree :: [Int] -> Tree Int -> Tree Int
-genTree [] t = t
-genTree (x:y:xs) Empty = genTree xs (Node (x+y) (Leaf x) (Leaf y))
-genTree (x:xs) (Node n t1 t2) = genTree xs (Node (x+n) (Leaf x) (Node n t1 t2))
+addTree :: Tre a -> Tre a -> Tre a
+addTree Empty t = t
+addTree t Empty = t
+addTree (Leaf n x) (Leaf m y) = Node (n + m) (Leaf n x) (Leaf m y)
+addTree (Leaf n x) (Node m t1 t2) = Node (n + m) (Leaf n x) (Node m t1 t2)
+addTree (Node n t1 t2) (Leaf m x) = Node (n + m) (Node n t1 t2) (Leaf m x)
+addTree (Node n t1 t2) (Node m t3 t4) = Node (n + m) (Node n t1 t2) (Node m t3 t4)
 
-genTreeV2 :: [(a,Int)] -> Tree a -> Tree a 
-genTreeV2 [] t = t
-genTreeV2 ((x,n):(y,m):xs) Empty = genTreeV2 xs (Node (n+m) (Leaf x) (Leaf y))
-genTreeV2 ((x,n):xs) (Node m t1 t2) = genTreeV2 xs (Node (n+m) (Leaf x) (Node m t1 t2))
+t1 :: Tre Char
+t1 = Node 1 (Leaf 2 'a') (Leaf 3 'b')
 
-encode :: Tree a -> String
-encode (Node n t1 t2) | 
-
--- Another trial
-data Tre a = Empty | Leaf Int a | Node Int (Tree a) (Tree a) deriving (Show)
-
-instance Ord Tre where
-    Leaf n x > Leaf m y = n > m
-    Leaf n x > Tree m t1 t2 = n > m
-instance Eq Tre where
-    Leaf n x == Leaf m y = n == y 
-    Leaf n x == Tree m t1 t2 = n == m
+t2 :: Tre Char
+t2 = Node 1 (Leaf 2 'a') (Leaf 3 'b')
 
 
-putTree :: Tre a -> [Tre a] -> [Tre a]
-putTree _ [] = []
-put (Node n t1 t2) (t:ts)
+makeList :: [(a,Int)] -> [Tre a]
+makeList xs = [(Leaf n x) | (x,n) <- xs]
+
+put :: Tre a -> [Tre a] -> [Tre a]
+put t1 [] = [t1]
+put t1 (t:ts) | t1 > t = t : put t1 ts
+              | otherwise = t1 : t : ts
+
+
+
+collapse :: [Tre a] -> [Tre a]
+collapse [t1,t2] = [addTree t1 t2]
+collapse [t] = [t]
+collapse (t1:t2:ts) = collapse (put (addTree t1 t2) ts)
+
+testCase :: [(Char,Int)]
+testCase = [('e',5),('d',6),('c',6),('b',7),('a',15)]
+
+l1 = Leaf 5 'e'
+l2 = Leaf 6 'd'
+testCase2 :: [(Char,Int)]
+testCase2 =  [('c',6),('b',7),('a',15)]
+
