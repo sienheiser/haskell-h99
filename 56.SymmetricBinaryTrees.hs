@@ -1,17 +1,9 @@
 data Tree a = Empty | Branch a (Tree a) (Tree a) deriving (Show)
 
-reflectTree :: Tree Char -> Tree Char
-reflectTree Empty = Empty
-reflectTree (Branch 'x' (Branch 'x' Empty Empty) Empty) = Branch 'x' Empty (Branch 'x' Empty Empty)
-reflectTree (Branch 'x' Empty (Branch 'x' Empty Empty)) = Branch 'x' (Branch 'x' Empty Empty) Empty
-reflectTree (Branch 'x' (Branch 'x' Empty Empty) (Branch 'x' Empty Empty)) = Branch 'x' (Branch 'x' Empty Empty) (Branch 'x' Empty Empty)
-reflectTree (Branch 'x' t1 t2) = Branch 'x' (reflectTree t2) (reflectTree t1)
+mirror :: Tree Char -> Tree Char -> Bool 
+mirror Empty Empty = True
+mirror (Branch _ a b) (Branch _ x y) = mirror a y && mirror b x
+mirror _ _ = False
 
-
-symmetric :: Tree Char -> Tree Char -> Bool
-symmetric (Branch 'x' Empty Empty) (Branch 'x' Empty Empty) = True
-symmetric (Branch 'x' (Branch 'x' Empty Empty) Empty) (Branch 'x' (Branch 'x' Empty Empty) Empty) = True
-symmetric (Branch 'x' Empty (Branch 'x' Empty Empty)) (Branch 'x' Empty (Branch 'x' Empty Empty)) = True
-symmetric (Branch 'x' (Branch 'x' Empty Empty) (Branch 'x' Empty Empty)) (Branch 'x' (Branch 'x' Empty Empty) (Branch 'x' Empty Empty)) = True
-symmetric
- 
+symmetric :: Tree Char -> Bool
+symmetric (Branch _ t1 t2) = mirror t1 t2
