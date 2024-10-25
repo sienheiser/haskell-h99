@@ -1,9 +1,14 @@
-data Tree a = Empty | Branch a (Tree a) (Tree a)
-  deriving (Show,Eq)
+data TurnstileState = Locked | Unlocked deriving (Show)
+data TurnstileOutput = Thank | Tut | Open deriving (Show)
 
-cbalTree :: Int -> [Tree Char]
-cbalTree 0 = [Empty]
-cbalTree n = let (q,r) = (n-1) `quotRem` 2 in 
-  [Branch 'x' left right | i <- [q .. q+r],
-                           left <- cbalTree i,
-                           right <- cbalTree (n-i-1)]
+coin :: TurnstileState -> (TurnstileOutput,TurnstileState)
+coin _ = (Thank,Unlocked)
+
+newtype State s a = State { runState :: s -> (a,s) }
+state :: (s -> (a,s)) -> State s a 
+state = State
+
+(>>=) :: State s a -> (a -> State s b) -> State s b
+p >>= k = state $ \ s0 ->
+  let (x,t) = runState p s0
+  in runState (k x) t
